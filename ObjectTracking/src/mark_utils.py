@@ -1,7 +1,16 @@
+#encoding=utf-8
 from __future__ import print_function
-import cv2
-import imutils
 
+import os
+
+import numpy
+from PIL import  Image
+import cv2
+
+from image_handle import projectTransform
+from image_handle import multiOperation
+from image_handle import bothEnhance
+import imutils
 # mouse_params = {'window_name': 'video', 'draw': False, 'start': None, 'end': None,'image': None, 'draw_finish': False}
 # def on_mouse(event, x, y, flags, param):
 #
@@ -27,7 +36,7 @@ mouse_params = {'window_name': 'video', 'state': 0, 'coordinate': [None, None, N
 def on_mouse(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONUP:
         param['coordinate'][param['state']] = (x, y)
-        param['state'] = param['state']+1
+        param['state'] = param['state'] + 1
         if param['state'] == 4:
             param['state'] = 0
 
@@ -37,6 +46,7 @@ def on_mouse(event, x, y, flags, param):
 
 
 video_path = "../file/test2.flv"
+
 choose = 1
 if choose == 0:
     camera = cv2.VideoCapture(0)
@@ -51,7 +61,11 @@ if grabbed:
     cv2.setMouseCallback(mouse_params['window_name'], on_mouse, mouse_params)
     cv2.waitKey(0)
 
+# 删去最开始标记的图片框
+cv2.destroyWindow(mouse_params['window_name'])
+
 while True:
+    # print("hello")
     (grabbed, frame) = camera.read()
     if choose == 1 and not grabbed:
         break
@@ -60,7 +74,24 @@ while True:
     frameClone = frame.copy()
     for i in range(4):
         cv2.circle(frameClone, mouse_params['coordinate'][i], 2, (0, 255, 0), -1)
+
     cv2.imshow("result", frameClone)
+    print(mouse_params['coordinate'])
+    # 投影并展示
+    handled_image=projectTransform(frameClone,mouse_params['coordinate'])
+    cv2.imshow("handled_image",handled_image)
+    # 转成PIL.Image格式进行增强操作
+    cv2_im = cv2.cvtColor(handled_image,cv2.COLOR_BGR2RGB)
+    pil_im = Image.fromarray(cv2_im)
+    enhanced_image=multiOperation(pil_im)
+
+    # 转成cv2.Image格式进行增强
+    pil_image = enhanced_image.convert('RGB')
+    open_cv_image = numpy.array(pil_image)
+    # Convert RGB to BGR
+    open_cv_image = open_cv_image[:, :, ::-1].copy()
+
+    cv2.imshow("enhanced_image",open_cv_image)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
