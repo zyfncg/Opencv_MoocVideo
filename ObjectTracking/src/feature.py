@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 
-path = "../file/test1.png"
+path = "../file/test3.png"
 image = cv2.imread(path)
 cv2.imshow("source", image)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

@@ -2,25 +2,38 @@ from __future__ import print_function
 import cv2
 import imutils
 
-mouse_params = {'window_name': 'video', 'draw': False, 'start': None, 'end': None, 'image': None, 'draw_finish': False}
+# mouse_params = {'window_name': 'video', 'draw': False, 'start': None, 'end': None,'image': None, 'draw_finish': False}
+# def on_mouse(event, x, y, flags, param):
+#
+#         if event == cv2.EVENT_LBUTTONDOWN:
+#             param['draw'] = True
+#             param['start'] = (x, y)
+#         elif event == cv2.EVENT_LBUTTONUP:
+#             param['draw'] = False
+#             param['end'] = (x, y)
+#             image_show = param['image'].copy()
+#             cv2.rectangle(image_show, param['start'], (x, y), (0, 255, 255), 2)
+#             cv2.imshow(mouse_params['window_name'], image_show)
+#         elif event == cv2.EVENT_MOUSEMOVE:
+#             if param['draw']:
+#                 image_show = param['image'].copy()
+#                 cv2.rectangle(image_show, param['start'], (x, y), (0, 255, 255), 2)
+#                 cv2.imshow(mouse_params['window_name'], image_show)
+
+
+mouse_params = {'window_name': 'video', 'state': 0, 'coordinate': [None, None, None, None], 'markFinish': False}
 
 
 def on_mouse(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONUP:
+        param['coordinate'][param['state']] = (x, y)
+        param['state'] = param['state']+1
+        if param['state'] == 4:
+            param['state'] = 0
 
-        if event == cv2.EVENT_LBUTTONDOWN:
-            param['draw'] = True
-            param['start'] = (x, y)
-        elif event == cv2.EVENT_LBUTTONUP:
-            param['draw'] = False
-            param['end'] = (x, y)
-            image_show = param['image'].copy()
-            cv2.rectangle(image_show, param['start'], (x, y), (0, 255, 255), 2)
-            cv2.imshow(mouse_params['window_name'], image_show)
-        elif event == cv2.EVENT_MOUSEMOVE:
-            if param['draw']:
-                image_show = param['image'].copy()
-                cv2.rectangle(image_show, param['start'], (x, y), (0, 255, 255), 2)
-                cv2.imshow(mouse_params['window_name'], image_show)
+        image_show = param['image']
+        cv2.circle(image_show, (x, y), 2, (0, 255, 0), -1)
+        cv2.imshow(mouse_params['window_name'], image_show)
 
 
 video_path = "../file/test2.flv"
@@ -32,7 +45,7 @@ else:
 
 (grabbed, frame) = camera.read()
 if grabbed:
-    frame = imutils.resize(frame, width=300)
+    # frame = imutils.resize(frame, width=300)
     cv2.imshow(mouse_params['window_name'], frame)
     mouse_params['image'] = frame
     cv2.setMouseCallback(mouse_params['window_name'], on_mouse, mouse_params)
@@ -42,10 +55,11 @@ while True:
     (grabbed, frame) = camera.read()
     if choose == 1 and not grabbed:
         break
-    frame = imutils.resize(frame, width=300)
+    # frame = imutils.resize(frame, width=300)
 
     frameClone = frame.copy()
-    cv2.rectangle(frameClone, mouse_params['start'], mouse_params['end'], (0, 255, 255), 2)
+    for i in range(4):
+        cv2.circle(frameClone, mouse_params['coordinate'][i], 2, (0, 255, 0), -1)
     cv2.imshow("result", frameClone)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
