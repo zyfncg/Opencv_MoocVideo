@@ -4,12 +4,12 @@ from __future__ import print_function
 import os
 
 import numpy
-from PIL import  Image
+from PIL import Image
 import cv2
 
 from image_handle import projectTransform
 from image_handle import multiOperation
-from image_handle import bothEnhance
+# from image_handle import bothEnhance
 import imutils
 # mouse_params = {'window_name': 'video', 'draw': False, 'start': None, 'end': None,'image': None, 'draw_finish': False}
 # def on_mouse(event, x, y, flags, param):
@@ -45,7 +45,7 @@ def on_mouse(event, x, y, flags, param):
         cv2.imshow(mouse_params['window_name'], image_show)
 
 
-video_path = "../file/test2.flv"
+video_path = "../file/test61.mp4"
 
 choose = 1
 if choose == 0:
@@ -64,6 +64,13 @@ if grabbed:
 # 删去最开始标记的图片框
 cv2.destroyWindow(mouse_params['window_name'])
 
+# 获取视频参数
+fps = camera.get(cv2.CAP_PROP_FPS)
+size = (int(camera.get(cv2.CAP_PROP_FRAME_WIDTH)),
+        int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+videoWriter = cv2.VideoWriter('result.avi', fourcc, 20.0, size, True)
+
 while True:
     # print("hello")
     (grabbed, frame) = camera.read()
@@ -75,11 +82,11 @@ while True:
     for i in range(4):
         cv2.circle(frameClone, mouse_params['coordinate'][i], 2, (0, 255, 0), -1)
 
-    cv2.imshow("result", frameClone)
+    cv2.imshow("original", frameClone)
     print(mouse_params['coordinate'])
     # 投影并展示
     handled_image=projectTransform(frameClone,mouse_params['coordinate'])
-    cv2.imshow("handled_image",handled_image)
+    # cv2.imshow("handled_image",handled_image)
     # 转成PIL.Image格式进行增强操作
     cv2_im = cv2.cvtColor(handled_image,cv2.COLOR_BGR2RGB)
     pil_im = Image.fromarray(cv2_im)
@@ -91,10 +98,16 @@ while True:
     # Convert RGB to BGR
     open_cv_image = open_cv_image[:, :, ::-1].copy()
 
-    cv2.imshow("enhanced_image",open_cv_image)
+    contrast = numpy.column_stack((handled_image, open_cv_image))
 
+    contrast = cv2.cvtColor(contrast, cv2.COLOR_BGR2RGB)
+    contrast = cv2.cvtColor(contrast, cv2.COLOR_RGB2BGR)
+    videoWriter.write(contrast)
+    # cv2.imshow("enhanced_image", open_cv_image)
+    cv2.imshow("enhanced_image", contrast)
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 camera.release()
+videoWriter.release()
 cv2.destroyAllWindows()
 cv2.waitKey(0)
