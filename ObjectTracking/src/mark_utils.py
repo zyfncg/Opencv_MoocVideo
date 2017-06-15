@@ -45,7 +45,7 @@ def on_mouse(event, x, y, flags, param):
         cv2.imshow(mouse_params['window_name'], image_show)
 
 
-video_path = "../file/test61.mp4"
+video_path = "../file/test5.flv"
 
 choose = 1
 if choose == 0:
@@ -64,14 +64,17 @@ if grabbed:
 # 删去最开始标记的图片框
 cv2.destroyWindow(mouse_params['window_name'])
 
+handled_image = projectTransform(frame, mouse_params['coordinate'])
 # 获取视频参数
 fps = camera.get(cv2.CAP_PROP_FPS)
-size = (int(camera.get(cv2.CAP_PROP_FRAME_WIDTH)),
-        int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
-videoWriter = cv2.VideoWriter('result.avi', fourcc, 20.0, size, True)
+(h, w, num) = handled_image.shape
+print(handled_image.shape)
+fourcc = cv2.VideoWriter_fourcc(*'DIVX')
+videoWriter = cv2.VideoWriter('result.avi', fourcc, fps, (w*2, h), True)
 
-while True:
+# while True:
+
+for i in range(200):
     # print("hello")
     (grabbed, frame) = camera.read()
     if choose == 1 and not grabbed:
@@ -79,11 +82,11 @@ while True:
     # frame = imutils.resize(frame, width=300)
 
     frameClone = frame.copy()
-    for i in range(4):
-        cv2.circle(frameClone, mouse_params['coordinate'][i], 2, (0, 255, 0), -1)
+    # for i in range(4):
+    #     cv2.circle(frameClone, mouse_params['coordinate'][i], 2, (0, 255, 0), -1)
 
     cv2.imshow("original", frameClone)
-    print(mouse_params['coordinate'])
+    # print(mouse_params['coordinate'])
     # 投影并展示
     handled_image=projectTransform(frameClone,mouse_params['coordinate'])
     # cv2.imshow("handled_image",handled_image)
@@ -98,13 +101,15 @@ while True:
     # Convert RGB to BGR
     open_cv_image = open_cv_image[:, :, ::-1].copy()
 
-    contrast = numpy.column_stack((handled_image, open_cv_image))
-
-    contrast = cv2.cvtColor(contrast, cv2.COLOR_BGR2RGB)
-    contrast = cv2.cvtColor(contrast, cv2.COLOR_RGB2BGR)
-    videoWriter.write(contrast)
+    output = numpy.zeros((h, w * 2, 3), dtype="uint8")
+    output[0:h, 0:w] = handled_image
+    output[0:h, w:w * 2] = open_cv_image
+    # contrast = cv2.cvtColor(contrast, cv2.COLOR_BGR2RGB)
+    # contrast = cv2.cvtColor(contrast, cv2.COLOR_RGB2BGR)
+    videoWriter.write(output)
+    # cv2.waitKey(200)
     # cv2.imshow("enhanced_image", open_cv_image)
-    cv2.imshow("enhanced_image", contrast)
+    cv2.imshow("enhanced_image", output)
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 camera.release()
