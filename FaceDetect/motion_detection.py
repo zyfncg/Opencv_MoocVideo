@@ -19,7 +19,7 @@ def have_person(record1):
         return True
     return False
 
-video_path = "picture/video.mp4"
+video_path = "picture/V170617.mp4"
 choose = 1
 if choose == 0:
     camera = cv2.VideoCapture(0)
@@ -78,6 +78,7 @@ while True:
     # print("motion region: %d" % (nums))
     cv2.imshow('frame', fgmask)
     # cv2.imshow('frame1', fgmask1)
+    cv2.waitKey(10)
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
