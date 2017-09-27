@@ -125,7 +125,7 @@ def keep_box(contour):
         if DEBUG:
             print "\t Rejected because of size"
         return False
-    if h_ < img_y / 40 or w_ < img_y / 40:
+    if h_ < img_y / 40 or w_ < img_y / 40 or h_ < 10 or w_ < 10:
         return False
     return True
 
@@ -239,7 +239,7 @@ def text_detect(image):
         cv2.rectangle(new_image, (x_, y_), (x_ + width, y_ + height), (0, 255, 0), 2)
     # blur a bit to improve ocr accuracy
 
-    new_image = cv2.blur(new_image, (2, 2))
+    # new_image = cv2.blur(new_image, (2, 2))
     # cv2.rectangle(new_image, (1, 1), (img_x / 40, img_y / 40), (0, 0, 0), 3)
     # cv2.imshow("text_detect", new_image)
     # cv2.waitKey(0)

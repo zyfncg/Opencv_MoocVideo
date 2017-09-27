@@ -101,6 +101,7 @@ print(V[0:10].reshape((10, 7, 7)))
 # #############################################################################
 # Display the distorted image
 
+
 def show_with_diff(image, reference, title):
     """Helper function to display denoising"""
     plt.figure(figsize=(5, 3.3))
