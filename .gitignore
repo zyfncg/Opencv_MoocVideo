@@ -3,3 +3,4 @@
 *.flv
 *.f4v
 .idea/
+debluring/src/dict.npz
