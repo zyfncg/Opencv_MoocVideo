@@ -116,6 +116,7 @@ def modcrop(image, scale=3):
     image = image[0:h, 0:w]
   return image
 
+
 def input_setup(sess, config):
   """
   Read image files and make their sub-images and saved them as a h5 file format.
@@ -131,7 +132,7 @@ def input_setup(sess, config):
   padding = abs(config.image_size - config.label_size) / 2 # 6
 
   if config.is_train:
-    for i in xrange(len(data)):
+    for i in range(len(data)):
       input_, label_ = preprocess(data[i], config.scale)
 
       if len(input_.shape) == 3:
@@ -150,29 +151,10 @@ def input_setup(sess, config):
 
           sub_input_sequence.append(sub_input)
           sub_label_sequence.append(sub_label)
-
   else:
     input_, label_ = preprocess(data[2], config.scale)
 
-    if len(input_.shape) == 3:
-      h, w, _ = input_.shape
-    else:
-      h, w = input_.shape
-
-    # Numbers of sub-images in height and width of image are needed to compute merge operation.
-    nx = ny = 0 
-    for x in range(0, h-config.image_size+1, config.stride):
-      nx += 1; ny = 0
-      for y in range(0, w-config.image_size+1, config.stride):
-        ny += 1
-        sub_input = input_[x:x+config.image_size, y:y+config.image_size] # [33 x 33]
-        sub_label = label_[x+padding:x+padding+config.label_size, y+padding:y+padding+config.label_size] # [21 x 21]
-        
-        sub_input = sub_input.reshape([config.image_size, config.image_size, 1])  
-        sub_label = sub_label.reshape([config.label_size, config.label_size, 1])
-
-        sub_input_sequence.append(sub_input)
-        sub_label_sequence.append(sub_label)
+    return input_, label_
 
   """
   len(sub_input_sequence) : the number of sub_input (33 x 33 x ch) in one image
@@ -184,8 +166,6 @@ def input_setup(sess, config):
 
   make_data(sess, arrdata, arrlabel)
 
-  if not config.is_train:
-    return nx, ny
     
 def imsave(image, path):
   return scipy.misc.imsave(path, image)
